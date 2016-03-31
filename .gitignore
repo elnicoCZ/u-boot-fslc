@@ -84,3 +84,11 @@ GTAGS
 *.orig
 *~
 \#*#
+
+# Environment files
+/env_paths.*
+
+# Build artifacts
+/u-boot*.vf610twr*
+/u-boot*.sqm4vf6*
+
