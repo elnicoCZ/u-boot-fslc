@@ -1,0 +1,7 @@
+SQM4VF6EB BOARD
+M:	Petr Kubiznak <kubiznak.petr@elnico.cz>
+S:	Maintained
+F:	board/elnico/sqm4vf6eb/
+F:	include/configs/sqm4vf6eb.h
+F:	configs/sqm4vf6eb_defconfig
+F:	configs/sqm4vf6eb_nand_defconfig

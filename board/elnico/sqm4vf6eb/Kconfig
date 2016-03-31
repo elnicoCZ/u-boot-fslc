@@ -1,0 +1,15 @@
+if TARGET_SQM4VF6EB
+
+config SYS_BOARD
+	default "sqm4vf6eb"
+
+config SYS_VENDOR
+	default "elnico"
+
+config SYS_SOC
+	default "vf610"
+
+config SYS_CONFIG_NAME
+	default "sqm4vf6eb"
+
+endif

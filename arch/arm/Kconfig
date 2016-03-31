@@ -709,6 +709,10 @@ config ARCH_ROCKCHIP
 	select CPU_V7
 	select DM
 
+config TARGET_SQM4VF6EB
+        bool "Support sqm4vf6eb"
+        select CPU_V7
+
 endchoice
 
 source "arch/arm/mach-at91/Kconfig"
@@ -785,6 +789,7 @@ source "board/compulab/cm_t43/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
+source "board/elnico/sqm4vf6eb/Kconfig"
 source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"
