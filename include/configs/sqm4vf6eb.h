@@ -237,18 +237,18 @@
 
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
-#define CONFIG_SYS_MEMTEST_END		0x87C00000
+#define CONFIG_SYS_MEMTEST_END		0x8FC00000
 
 /*
  * Stack sizes
  * The stack sizes are set up in start.S using the settings below
  */
-#define CONFIG_STACKSIZE		(128 * 1024)	/* regular stack */
+#define CONFIG_STACKSIZE		(256 * 1024)	/* regular stack */
 
 /* Physical memory map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			(0x80000000)
-#define PHYS_SDRAM_SIZE			(128 * 1024 * 1024)
+#define PHYS_SDRAM_SIZE			(256 * 1024 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
