@@ -16,6 +16,8 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
+#include <asm/gpio.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -27,6 +29,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
 			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
+
+#define USB0_ENABLE_GPIO	(70)
+#define USB1_ENABLE_GPIO	(20)
 
 #define DDR_PAD_CTRL		(PAD_CTL_DSE_20ohm)
 #define DDR_PAD_CTRL_1		(PAD_CTL_DSE_20ohm | PAD_CTL_INPUT_DIFFERENTIAL)
@@ -150,6 +155,11 @@ static struct ddrmc_phy_setting sqm4vf6_phy_settings[] = {
 
 	/* end marker */
 	{ 0, -1 }
+};
+
+static const iomux_v3_cfg_t usb_pads[] = {
+	VF610_PAD_PTD24__GPIO_70,	// USB0_EN
+	VF610_PAD_PTA30__GPIO_20,	// USB1_EN
 };
 
 int dram_init(void)
@@ -417,6 +427,10 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
 			CCM_CCGR10_NFC_CTRL_MASK | CCM_CCGR10_I2C2_CTRL_MASK);
 
+#ifdef CONFIG_USB_EHCI
+	setbits_le32(&ccm->ccgr7, CCM_CCGR7_USBC1_CTRL_MASK);
+#endif
+
 	clrsetbits_le32(&anadig->pll2_ctrl, ANADIG_PLL2_CTRL_POWERDOWN,
 			ANADIG_PLL2_CTRL_ENABLE | ANADIG_PLL2_CTRL_DIV_SELECT);
 	clrsetbits_le32(&anadig->pll1_ctrl, ANADIG_PLL1_CTRL_POWERDOWN,
@@ -501,6 +515,11 @@ int board_init(void)
 	 */
 	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
 
+#ifdef CONFIG_USB_EHCI_VF
+	gpio_request(USB0_ENABLE_GPIO, "usb0-en-gpio");
+	gpio_request(USB1_ENABLE_GPIO, "usb1-en-gpio");
+#endif
+
 	return 0;
 }
 
@@ -510,3 +529,20 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_USB_EHCI_VF
+int board_ehci_hcd_init(int port)
+{
+	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
+
+	switch (port) {
+	case 0:
+		gpio_direction_output(USB0_ENABLE_GPIO, 1);
+		break;
+	case 1:
+		gpio_direction_output(USB1_ENABLE_GPIO, 1);
+		break;
+	}
+	return 0;
+}
+#endif
