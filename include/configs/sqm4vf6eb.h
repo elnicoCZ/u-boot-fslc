@@ -1,7 +1,10 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2016 Elnico, s.r.o.
  *
- * Configuration settings for the Freescale Vybrid vf610twr board.
+ * Configuration settings for the Elnico SQM4-VF6 SOM.
+ *
+ * Based on vf610twr.h:
+ * Copyright 2013 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -13,16 +16,13 @@
 
 #define CONFIG_VF610
 
+#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_FSL_CLK
-
-#define CONFIG_MACH_TYPE		4146
+#define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-
-/* Enable passing of ATAGs */
-#define CONFIG_CMDLINE_TAG
 
 #define CONFIG_CMD_FUSE
 #ifdef CONFIG_CMD_FUSE
@@ -39,26 +39,31 @@
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#define CONFIG_VERSION_VARIABLE
 #define CONFIG_SYS_UART_PORT		(1)
 #define CONFIG_BAUDRATE			115200
+#define CONFIG_CMD_ASKENV
 
 /* NAND support */
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-
 #ifdef CONFIG_CMD_NAND
+
 #define CONFIG_USE_ARCH_MEMCPY
+#define CONFIG_USE_ARCH_MEMSET
+
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
-/* UBI */
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#define CONFIG_MTD_UBI_FASTMAP
 #define CONFIG_RBTREE
 #define CONFIG_LZO
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_BOOTZ
 
-/* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
@@ -70,7 +75,8 @@
 					"4m(kernel),"			\
 					"512k(fdt),"		\
 					"-(rootfs)"
-#endif
+
+#endif /* CONFIG_CMD_NAND */
 
 #define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
@@ -82,6 +88,8 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT3
+#define CONFIG_CMD_EXT4
 #define CONFIG_DOS_PARTITION
 
 #define CONFIG_CMD_PING
@@ -96,7 +104,6 @@
 #define CONFIG_PHY_MICREL
 
 /* QSPI Configs*/
-
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
@@ -113,6 +120,7 @@
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_BOOTDELAY		3
+#define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
@@ -138,6 +146,9 @@
 	"fdt_addr_r=0x84000000\0" \
 	"rdaddr=0x84080000\0" \
 	"ramdisk_addr_r=0x84080000\0"
+
+#define DFU_ALT_NAND_INFO		"kernel part 0 1\;rootfs part 0 2\;uImage fat 0 1"
+#define DFU_BUFSIZ			"524288"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
@@ -210,7 +221,9 @@
 			"fi; " \
 		"else " \
 			"bootz; " \
-		"fi;\0"
+		"fi;\0" \
+	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
+	"dfu_bufsiz=" DFU_BUFSIZ "\0"
 
 #define CONFIG_BOOTCOMMAND \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -229,7 +242,7 @@
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #undef CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		\
 			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
@@ -238,6 +251,8 @@
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x8FC00000
+
+#define CONFIG_CMDLINE_EDITING
 
 /*
  * Stack sizes
@@ -291,5 +306,33 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #endif /* CONFIG_CMD_USB */
+
+/* USB Device Support */
+#define CONFIG_USB_GADGET
+#ifdef CONFIG_USB_GADGET
+
+#define CONFIG_CI_UDC
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+#define CONFIG_G_DNL_MANUFACTURER	"Elnico"
+#define CONFIG_G_DNL_VENDOR_NUM		0x0525		// Freescale`s vendor ID
+#define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5		// Freescale`s product ID
+
+/* USB DFU */
+#define CONFIG_USB_GADGET_DOWNLOAD
+#define CONFIG_CMD_DFU
+#define CONFIG_USB_FUNCTION_DFU
+#define CONFIG_DFU_NAND
+#define CONFIG_DFU_MMC
+#define CONFIG_SYS_CACHELINE_SIZE 32
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(1024 * 1024)
+#define CONFIG_FAT_WRITE
+
+/* USB Storage */
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
+#define CONFIG_CMD_USB_MASS_STORAGE
+
+#endif /* CONFIG_USB_GADGET */
 
 #endif /* __CONFIG_H */

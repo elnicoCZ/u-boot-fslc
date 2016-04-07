@@ -18,6 +18,7 @@
 #include <i2c.h>
 #include <asm/gpio.h>
 #include <usb.h>
+#include <g_dnl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -427,6 +428,10 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
 			CCM_CCGR10_NFC_CTRL_MASK | CCM_CCGR10_I2C2_CTRL_MASK);
 
+#ifdef CONFIG_CI_UDC
+	setbits_le32(&ccm->ccgr1, CCM_CCGR1_USBC0_CTRL_MASK);
+#endif
+
 #ifdef CONFIG_USB_EHCI
 	setbits_le32(&ccm->ccgr7, CCM_CCGR7_USBC1_CTRL_MASK);
 #endif
@@ -522,6 +527,21 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	struct src *src = (struct src *)SRC_BASE_ADDR;
+
+	if (((src->sbmr2 & SRC_SBMR2_BMOD_MASK) >> SRC_SBMR2_BMOD_SHIFT)
+			== SRC_SBMR2_BMOD_SERIAL) {
+		printf("Serial Downloader recovery mode, disable autoboot\n");
+		setenv("bootdelay", "-1");
+	}
+
+	return 0;
+}
+#endif /* CONFIG_BOARD_LATE_INIT */
 
 int checkboard(void)
 {
