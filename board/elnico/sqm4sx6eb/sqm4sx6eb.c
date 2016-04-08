@@ -19,8 +19,10 @@
 #include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <i2c.h>
+#include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <power/pmic.h>
@@ -109,6 +111,11 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_DATA7__GPIO6_IO_21 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
+static iomux_v3_cfg_t const peri_3v3_pads[] = {
+	MX6_PAD_QSPI1A_DATA0__GPIO4_IO_16 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#ifdef CONFIG_FEC_MXC
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -126,63 +133,137 @@ static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_RGMII1_TXC__ENET1_RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const peri_3v3_pads[] = {
-	MX6_PAD_QSPI1A_DATA0__GPIO4_IO_16 | MUX_PAD_CTRL(NO_PAD_CTRL),
+static iomux_v3_cfg_t const fec2_pads[] = {
+	MX6_PAD_ENET1_MDC__ENET2_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_MDIO__ENET2_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII2_RX_CTL__ENET2_RX_EN | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII2_RD0__ENET2_RX_DATA_0 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII2_RD1__ENET2_RX_DATA_1 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII2_RD2__ENET2_RX_DATA_2 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII2_RD3__ENET2_RX_DATA_3 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII2_RXC__ENET2_RX_CLK | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII2_TX_CTL__ENET2_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII2_TD0__ENET2_TX_DATA_0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII2_TD1__ENET2_TX_DATA_1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII2_TD2__ENET2_TX_DATA_2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII2_TD3__ENET2_TX_DATA_3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII2_TXC__ENET2_RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 };
 
 static iomux_v3_cfg_t const phy_control_pads[] = {
-	/* 25MHz Ethernet PHY Clock */
-	MX6_PAD_ENET2_RX_CLK__ENET2_REF_CLK_25M | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
+	// 25MHz Ethernet PHY Clock
+	MX6_PAD_ENET1_RX_CLK__ENET1_REF_CLK_25M | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
 
-	/* ENET PHY Power */
-	MX6_PAD_ENET2_COL__GPIO2_IO_6 | MUX_PAD_CTRL(NO_PAD_CTRL),
-
-	/* AR8031 PHY Reset */
-	MX6_PAD_ENET2_CRS__GPIO2_IO_7 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	// KSZ8031 PHY 1 Reset
+	MX6_PAD_ENET1_COL__GPIO2_IO_0 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	// KSZ8031 PHY 2 Reset
+	MX6_PAD_ENET1_CRS__GPIO2_IO_1 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-}
-
-static int setup_fec(void)
+#define ENET1_PHY_RESET_GPIO			IMX_GPIO_NR(2, 0)
+#define ENET2_PHY_RESET_GPIO			IMX_GPIO_NR(2, 1)
+static int setup_fec(int fec_id)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	int reg, ret;
+	int reg;
 
-	/* Use 125MHz anatop loopback REF_CLK1 for ENET1 */
-	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC1_MASK, 0);
-
-	ret = enable_fec_anatop_clock(0, ENET_125MHZ);
-	if (ret)
-		return ret;
-
+	if (0 == fec_id) {
+		// Initialize FEC1 pads
+		imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
+		// Use 125M anatop loopback REF_CLK1 for ENET1, clear gpr1[13], gpr1[17]
+		clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC1_MASK, 0);
+	} else if (1 == fec_id) {
+		// Initialize FEC2 pads
+		imx_iomux_v3_setup_multiple_pads(fec2_pads, ARRAY_SIZE(fec2_pads));
+		// Use 125M anatop loopback REF_CLK1 for ENET2, clear gpr1[14], gpr1[18]
+		clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK, 0);
+	}
+	// Initialize common PHY pads
 	imx_iomux_v3_setup_multiple_pads(phy_control_pads,
 					 ARRAY_SIZE(phy_control_pads));
+	udelay(20);
 
-	/* Enable the ENET power, active low */
-	gpio_direction_output(IMX_GPIO_NR(2, 6) , 0);
-
-	/* Reset AR8031 PHY */
-	gpio_direction_output(IMX_GPIO_NR(2, 7) , 0);
+	// Reset KSZ9031 PHY
+	if (0 == fec_id) {
+		gpio_direction_output(ENET1_PHY_RESET_GPIO , 0);
+		mdelay(10);
+		gpio_set_value(ENET1_PHY_RESET_GPIO, 1);
+	} else if (1 == fec_id) {
+		gpio_direction_output(ENET2_PHY_RESET_GPIO , 0);
+		mdelay(10);
+		gpio_set_value(ENET2_PHY_RESET_GPIO, 1);
+	}
 	mdelay(10);
-	gpio_set_value(IMX_GPIO_NR(2, 7), 1);
 
 	reg = readl(&anatop->pll_enet);
 	reg |= BM_ANADIG_PLL_ENET_REF_25M_ENABLE;
 	writel(reg, &anatop->pll_enet);
 
-	return 0;
+	return enable_fec_anatop_clock(fec_id, ENET_125MHZ);
 }
 
 int board_eth_init(bd_t *bis)
 {
-	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
-	setup_fec();
+	uint32_t base = IMX_FEC_BASE;
+	struct mii_dev *bus = NULL;
+	struct phy_device *phydev = NULL;
+	int ret;
 
-	return cpu_eth_init(bis);
+	setup_fec(CONFIG_FEC_ENET_DEV);
+
+	bus = fec_get_miibus(base, -1);
+	if (!bus)
+		return 0;
+	/* scan phy */
+	phydev = phy_find_by_mask(bus, 0xf, PHY_INTERFACE_MODE_RGMII);
+
+	if (!phydev) {
+		free(bus);
+		puts("No phy found\n");
+		return 0;
+	}
+	ret  = fec_probe(bis, -1, base, bus, phydev);
+	if (ret) {
+		puts("FEC MXC: probe failed\n");
+		free(phydev);
+		free(bus);
+	}
+
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	// Limit speed to 10/100Mbps
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_CTRL1000, 0x1c00);
+
+	// *** Setup KSZ9031 delays - see KSZ9031 RM (Table 4. RGMII Pad Skew Registers)
+	// control data pad skew - devaddr = 0x02, register = 0x04
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_CTRL_SIG_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	// rx data pad skew - devaddr = 0x02, register = 0x05
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_RX_DATA_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	// tx data pad skew - devaddr = 0x02, register = 0x06
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_TX_DATA_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x0000);
+	// gtx and rx clock pad skew - devaddr = 0x02, register = 0x08
+	ksz9031_phy_extended_write(phydev, 0x02,
+				   MII_KSZ9031_EXT_RGMII_CLOCK_SKEW,
+				   MII_KSZ9031_MOD_DATA_NO_POST_INC, 0x03FF);
+
+	if (phydev->drv->config) phydev->drv->config(phydev);
+	return 0;
+}
+#endif // CONFIG_FEC_MXC //
+
+static void setup_iomux_uart(void)
+{
+	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 }
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
@@ -265,25 +346,6 @@ int board_ehci_hcd_init(int port)
 	return 0;
 }
 #endif
-
-int board_phy_config(struct phy_device *phydev)
-{
-	/*
-	 * Enable 1.8V(SEL_1P5_1P8_POS_REG) on
-	 * Phy control debug reg 0
-	 */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
-
-	/* rgmii tx clock delay enable */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
-
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
 
 int board_early_init_f(void)
 {
