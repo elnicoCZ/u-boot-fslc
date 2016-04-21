@@ -17,8 +17,10 @@
 #include <netdev.h>
 #include <i2c.h>
 #include <asm/gpio.h>
-#include <usb.h>
-#include <g_dnl.h>
+#ifdef CONFIG_USB_GADGET
+# include <usb.h>
+# include <g_dnl.h>
+#endif // CONFIG_USB_GADGET //
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -29,6 +29,8 @@
 #define CONFIG_MXC_OCOTP
 #endif
 
+#define CONFIG_CMDLINE_TAG                      /* enable passing of ATAGs */
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
@@ -62,7 +64,6 @@
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
@@ -103,21 +104,14 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
 
-/* QSPI Configs*/
-#ifdef CONFIG_FSL_QSPI
-#define CONFIG_CMD_SF
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
-#define FSL_QSPI_FLASH_NUM		2
-#define CONFIG_SYS_FSL_QSPI_LE
-#endif
-
 /* I2C Configs */
-#define CONFIG_CMD_I2C
+/* I2C IS DISABLED, AS IT CAUSES STRANGE BEHAVIOUR
+ * - `i2c probe` leads to invalid instruction
+ * - Linux does not start booting (bootm) ??!! */
+/*#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_SPD_BUS_NUM		0
+#define CONFIG_SYS_I2C_MXC_I2C1
+#define CONFIG_SYS_I2C_MXC*/
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOARD_LATE_INIT
@@ -128,16 +122,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x3f408000
 #define CONFIG_BOARD_SIZE_LIMIT		524288
 
-/*
- * We do have 128MB of memory on the Vybrid Tower board. Leave the last
- * 16MB alone to avoid conflicts with Cortex-M4 firmwares running from
- * DDR3. Hence, limit the memory range for image processing to 112MB
- * using bootm_size. All of the following must be within this range.
- * We have the default load at 32MB into DDR (for the kernel), FDT at
- * 64MB and the ramdisk 512KB above that (allowing for hopefully never
- * seen large trees). This allows a reasonable split between ramdisk
- * and kernel size, where the ram disk can be a bit larger.
- */
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x07000000\0" \
 	"loadaddr=0x82000000\0" \
@@ -241,8 +225,9 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#undef CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		\
 			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
@@ -252,13 +237,11 @@
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x8FC00000
 
-#define CONFIG_CMDLINE_EDITING
-
 /*
  * Stack sizes
  * The stack sizes are set up in start.S using the settings below
  */
-#define CONFIG_STACKSIZE		(256 * 1024)	/* regular stack */
+#define CONFIG_STACKSIZE		(128 * 1024)	/* regular stack */
 
 /* Physical memory map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -285,10 +268,11 @@
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SIZE			(64 * 2048)
-#define CONFIG_ENV_SECT_SIZE		(64 * 2048)
-#define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x180000
+#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
+#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_OFFSET		0xA0000
+#define CONFIG_ENV_SIZE_REDUND		(8 * 1024)
+#define CONFIG_ENV_OFFSET_REDUND	0xC0000
 #endif
 
 #define CONFIG_OF_LIBFDT
