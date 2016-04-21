@@ -287,8 +287,13 @@ static void setup_iomux_uart(void)
 		NEW_PAD_CTRL(VF610_PAD_PTB4__UART1_TX, UART_PAD_CTRL),
 		NEW_PAD_CTRL(VF610_PAD_PTB5__UART1_RX, UART_PAD_CTRL),
 	};
+	static const iomux_v3_cfg_t uart2_pads[] = {
+		NEW_PAD_CTRL(VF610_PAD_PTD0__UART2_TX, UART_PAD_CTRL),
+		NEW_PAD_CTRL(VF610_PAD_PTD1__UART2_RX, UART_PAD_CTRL),
+	};
 
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
+	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
 }
 
 static void setup_iomux_enet(void)
@@ -408,7 +413,7 @@ static void clock_init(void)
 	struct anadig_reg *anadig = (struct anadig_reg *)ANADIG_BASE_ADDR;
 
 	clrsetbits_le32(&ccm->ccgr0, CCM_REG_CTRL_MASK,
-			CCM_CCGR0_UART1_CTRL_MASK);
+			CCM_CCGR0_UART1_CTRL_MASK | CCM_CCGR0_UART2_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr1, CCM_REG_CTRL_MASK,
 			CCM_CCGR1_PIT_CTRL_MASK | CCM_CCGR1_WDOGA5_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr2, CCM_REG_CTRL_MASK,
@@ -420,7 +425,7 @@ static void clock_init(void)
 			CCM_CCGR3_ANADIG_CTRL_MASK | CCM_CCGR3_SCSC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr4, CCM_REG_CTRL_MASK,
 			CCM_CCGR4_WKUP_CTRL_MASK | CCM_CCGR4_CCM_CTRL_MASK |
-			CCM_CCGR4_GPC_CTRL_MASK);
+			CCM_CCGR4_GPC_CTRL_MASK | CCM_CCGR4_I2C0_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr6, CCM_REG_CTRL_MASK,
 			CCM_CCGR6_OCOTP_CTRL_MASK | CCM_CCGR6_DDRMC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr7, CCM_REG_CTRL_MASK,
@@ -428,7 +433,7 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr9, CCM_REG_CTRL_MASK,
 			CCM_CCGR9_FEC0_CTRL_MASK | CCM_CCGR9_FEC1_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
-			CCM_CCGR10_NFC_CTRL_MASK | CCM_CCGR10_I2C2_CTRL_MASK);
+			CCM_CCGR10_NFC_CTRL_MASK);
 
 #ifdef CONFIG_CI_UDC
 	setbits_le32(&ccm->ccgr1, CCM_CCGR1_USBC0_CTRL_MASK);

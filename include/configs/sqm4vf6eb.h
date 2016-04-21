@@ -105,13 +105,10 @@
 #define CONFIG_PHY_MICREL
 
 /* I2C Configs */
-/* I2C IS DISABLED, AS IT CAUSES STRANGE BEHAVIOUR
- * - `i2c probe` leads to invalid instruction
- * - Linux does not start booting (bootm) ??!! */
-/*#define CONFIG_CMD_I2C
+#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC*/
+#define CONFIG_SYS_I2C_MXC
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOARD_LATE_INIT
