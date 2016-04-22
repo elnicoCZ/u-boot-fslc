@@ -554,7 +554,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: SQM4-VF6-EasyBoard\n");
+	puts("Board: SQM4-VF6-" CONFIG_SQM4VF6_BOARD_NAME "\n");
 
 	return 0;
 }

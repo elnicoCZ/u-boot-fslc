@@ -15,6 +15,7 @@
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_VF610
+#define CONFIG_SQM4VF6_BOARD_NAME	"EasyBoard"
 
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_DISPLAY_CPUINFO
@@ -72,14 +73,16 @@
 #define CONFIG_MTD_DEVICE
 #define MTDIDS_DEFAULT			"nand0=fsl_nfc"
 #define MTDPARTS_DEFAULT		"mtdparts=fsl_nfc:"		\
-					"128k(vf-bcb)ro,"		\
-					"1408k(u-boot)ro,"		\
-					"512k(u-boot-env),"		\
-					"4m(kernel),"			\
-					"512k(fdt),"		\
-					"-(rootfs)"
-
-#endif /* CONFIG_CMD_NAND */
+					"128k(mtd_bcb)ro,"		\
+					"1408k(mtd_uboot)ro,"		\
+					"512k(mtd_uboot_env),"		\
+					"4m(mtd_kernel),"		\
+					"512k(mtd_fdt),"		\
+					"-(mtd_rootfs)"
+#else /* !CONFIG_CMD_NAND */
+#define MTDIDS_DEFAULT			""
+#define MTDPARTS_DEFAULT		""
+#endif /* !CONFIG_CMD_NAND */
 
 #define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
@@ -113,112 +116,14 @@
 #define CONFIG_SYS_I2C_MXC
 
 #define CONFIG_BOOTDELAY		3
+#define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_SYS_LOAD_ADDR		0x82000000
+#define CONFIG_LOADADDR			0x82000000
 
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_SYS_TEXT_BASE		0x3f408000
 #define CONFIG_BOARD_SIZE_LIMIT		524288
-
-#define MEM_LAYOUT_ENV_SETTINGS \
-	"bootm_size=0x07000000\0" \
-	"loadaddr=0x82000000\0" \
-	"kernel_addr_r=0x82000000\0" \
-	"fdt_addr=0x84000000\0" \
-	"fdt_addr_r=0x84000000\0" \
-	"rdaddr=0x84080000\0" \
-	"ramdisk_addr_r=0x84080000\0"
-
-#define DFU_ALT_NAND_INFO		"kernel part 0 1\;rootfs part 0 2\;uImage fat 0 1"
-#define DFU_BUFSIZ			"524288"
-
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	MEM_LAYOUT_ENV_SETTINGS \
-	"script=boot.scr\0" \
-	"image=zImage\0" \
-	"console=ttyLP1\0" \
-	"fdt_file=vf610-twr.dtb\0" \
-	"boot_fdt=try\0" \
-	"ip_dyn=yes\0" \
-	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
-	"update_sd_firmware_filename=u-boot.imx\0" \
-	"update_sd_firmware=" \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"if mmc dev ${mmcdev}; then "	\
-			"if ${get_cmd} ${update_sd_firmware_filename}; then " \
-				"setexpr fw_sz ${filesize} / 0x200; " \
-				"setexpr fw_sz ${fw_sz} + 1; "	\
-				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
-			"fi; "	\
-		"fi\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
-	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0" \
-	"netargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/nfs " \
-	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-		"netboot=echo Booting from net ...; " \
-		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0" \
-	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
-	"dfu_bufsiz=" DFU_BUFSIZ "\0"
-
-#define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "else run netboot; fi"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -247,6 +152,7 @@
 #define PHYS_SDRAM			(0x80000000)
 #define PHYS_SDRAM_SIZE			(256 * 1024 * 1024)
 
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
@@ -316,5 +222,93 @@
 #define CONFIG_CMD_USB_MASS_STORAGE
 
 #endif /* CONFIG_USB_GADGET */
+
+
+/* Environment configuration */
+#ifndef CONFIG_ELNICO_SUPPRESS_ENVIRONMENT
+
+#define CONFIG_EXTRA_BOOTCMD_MMC                "bootcmd_mmc=mmc rescan\;fatload mmc 0:1 ${loadaddr} ${kernel}\;bootm ${loadaddr}"
+#define CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_A5       "bootcmd_mmc_debug_a5=run bootargs_base bootargs_mmc bootargs_debug_a5 bootcmd_mmc"
+#define CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_M4       "bootcmd_mmc_debug_m4=run bootargs_base bootargs_mmc bootargs_debug_m4 bootcmd_mmc"
+#define CONFIG_EXTRA_BOOTCMD_MMC_RELEASE        "bootcmd_mmc_release=run bootargs_base bootargs_mmc bootargs_release bootcmd_mmc"
+
+#define CONFIG_EXTRA_BOOTCMD_NAND               "bootcmd_nand=nand read ${loadaddr} mtd_kernel ${kernelsize}\;bootm ${loadaddr}"
+#define CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_A5      "bootcmd_nand_debug_a5=run bootargs_base bootargs_nand bootargs_debug_a5 bootcmd_nand"
+#define CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_M4      "bootcmd_nand_debug_m4=run bootargs_base bootargs_nand bootargs_debug_m4 bootcmd_nand"
+#define CONFIG_EXTRA_BOOTCMD_NAND_RELEASE       "bootcmd_nand_release=run bootargs_base bootargs_nand bootargs_release bootcmd_nand"
+#define CONFIG_EXTRA_MTDPARTS                   "mtdparts=" MTDPARTS_DEFAULT
+#define CONFIG_EXTRA_MTDIDS                     "mtdids=" MTDIDS_DEFAULT
+
+#define CONFIG_EXTRA_BOOTARGS_BASE              "bootargs_base=setenv bootargs mem=256M"
+#define CONFIG_EXTRA_BOOTARGS_MMC               "bootargs_mmc=setenv bootargs ${bootargs} root=/dev/mmcblk0p2 ${rootfs_rights} rootwait"
+#define CONFIG_EXTRA_BOOTARGS_NAND              "bootargs_nand=setenv bootargs ${bootargs} ${mtdparts} ubi.mtd=mtd_rootfs root=ubi0_0 rootfstype=ubifs ${rootfs_rights} rootwait"
+#define CONFIG_EXTRA_BOOTARGS_DEBUG_A5          "bootargs_debug_a5=setenv bootargs ${bootargs} console=ttymxc1,115200 2"
+#define CONFIG_EXTRA_BOOTARGS_DEBUG_M4          "bootargs_debug_m4=setenv bootargs ${bootargs} console=ttymxc0,115200 quiet 3"
+#define CONFIG_EXTRA_BOOTARGS_RELEASE           "bootargs_release=setenv bootargs ${bootargs} console=ttymxc0,115200 quiet 5"
+#define CONFIG_EXTRA_ROOTFS_RIGHTS              "rootfs_rights=rw"
+
+#define CONFIG_EXTRA_ETHADDR                    "ethaddr=00:e0:0c:bc:e5:60"
+#define CONFIG_EXTRA_IPADDR                     "ipaddr=192.168.10.222"
+
+#define CONFIG_EXTRA_ENV_DFU_ALT_INFO           "dfu_alt_info=kernel part 0 1\;rootfs part 0 2\;uImage fat 0 1"
+#define CONFIG_EXTRA_ENV_DFU_BUFSIZ             "dfu_bufsiz=524288"
+
+#define CONFIG_EXTRA_ENV_SETTINGS_GENERAL                                       \
+        "kernel=uImage"                                                 "\0"    \
+        CONFIG_EXTRA_BOOTARGS_BASE                                      "\0"    \
+        CONFIG_EXTRA_BOOTARGS_DEBUG_A5                                  "\0"    \
+        CONFIG_EXTRA_BOOTARGS_DEBUG_M4                                  "\0"    \
+        CONFIG_EXTRA_BOOTARGS_RELEASE                                   "\0"    \
+        CONFIG_EXTRA_ROOTFS_RIGHTS                                      "\0"    \
+        ""
+
+#define CONFIG_EXTRA_ENV_SETTINGS_MMC                                           \
+        CONFIG_EXTRA_BOOTARGS_MMC                                       "\0"    \
+        CONFIG_EXTRA_BOOTCMD_MMC                                        "\0"    \
+        CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_A5                               "\0"    \
+        CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_M4                               "\0"    \
+        CONFIG_EXTRA_BOOTCMD_MMC_RELEASE                                "\0"    \
+        ""
+
+#ifdef CONFIG_CMD_NAND
+# define CONFIG_EXTRA_ENV_SETTINGS_NAND                                         \
+        CONFIG_EXTRA_BOOTARGS_NAND                                      "\0"    \
+        CONFIG_EXTRA_BOOTCMD_NAND                                       "\0"    \
+        CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_A5                              "\0"    \
+        CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_M4                              "\0"    \
+        CONFIG_EXTRA_BOOTCMD_NAND_RELEASE                               "\0"    \
+        CONFIG_EXTRA_MTDPARTS                                           "\0"    \
+        CONFIG_EXTRA_MTDIDS                                             "\0"    \
+        ""
+#else /* !CONFIG_CMD_NAND */
+# define CONFIG_EXTRA_ENV_SETTINGS_NAND         ""
+#endif /* !CONFIG_CMD_NAND */
+
+#define CONFIG_EXTRA_ENV_SETTINGS_NET                                           \
+        CONFIG_EXTRA_ETHADDR                                            "\0"    \
+        CONFIG_EXTRA_IPADDR                                             "\0"    \
+        ""
+
+#ifdef CONFIG_USB_GADGET
+# define CONFIG_EXTRA_ENV_SETTINGS_USB                                          \
+        CONFIG_EXTRA_ENV_DFU_ALT_INFO                                   "\0"    \
+        CONFIG_EXTRA_ENV_DFU_BUFSIZ                                     "\0"    \
+        ""
+#else /* !CONFIG_USB_GADGET */
+# define CONFIG_EXTRA_ENV_SETTINGS_USB          ""
+#endif /* !CONFIG_USB_GADGET */
+
+#define CONFIG_EXTRA_ENV_SETTINGS                                               \
+        CONFIG_EXTRA_ENV_SETTINGS_GENERAL                                       \
+        CONFIG_EXTRA_ENV_SETTINGS_MMC                                           \
+        CONFIG_EXTRA_ENV_SETTINGS_NAND                                          \
+        CONFIG_EXTRA_ENV_SETTINGS_NET                                           \
+        CONFIG_EXTRA_ENV_SETTINGS_USB                                           \
+        ""
+
+#define CONFIG_BOOTCOMMAND                                                      \
+        "run bootcmd_mmc_debug_a5"
+
+#endif /* !CONFIG_ELNICO_SUPPRESS_ENVIRONMENT */
 
 #endif /* __CONFIG_H */
