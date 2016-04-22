@@ -21,6 +21,8 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_FSL_CLK
 #define CONFIG_SYS_THUMB_BUILD
+#define CONFIG_SYS_DCACHE_OFF                   /* crucial for MQX to start directly from u-boot! */
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -29,7 +31,7 @@
 #define CONFIG_MXC_OCOTP
 #endif
 
-#define CONFIG_CMDLINE_TAG                      /* enable passing of ATAGs */
+#define CONFIG_CMDLINE_TAG                      /* enable passing of ATAGs - required for old good uImage's */
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
@@ -305,7 +307,6 @@
 #define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
 #define CONFIG_DFU_MMC
-#define CONFIG_SYS_CACHELINE_SIZE 32
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(1024 * 1024)
 #define CONFIG_FAT_WRITE
 

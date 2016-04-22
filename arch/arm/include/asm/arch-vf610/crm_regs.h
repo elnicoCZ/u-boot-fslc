@@ -210,6 +210,7 @@ struct anadig_reg {
 #define CCM_CCGR4_I2C0_CTRL_MASK		(0x3 << 12)
 #define CCM_CCGR4_I2C1_CTRL_MASK		(0x3 << 14)
 #define CCM_CCGR6_OCOTP_CTRL_MASK		(0x3 << 10)
+#define CCM_CCGR6_SNVS_CTRL_MASK		(0x3 << 14)
 #define CCM_CCGR6_DSPI2_CTRL_MASK		(0x3 << 24)
 #define CCM_CCGR6_DSPI3_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR6_DDRMC_CTRL_MASK		(0x3 << 28)

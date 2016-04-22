@@ -413,7 +413,8 @@ static void clock_init(void)
 	struct anadig_reg *anadig = (struct anadig_reg *)ANADIG_BASE_ADDR;
 
 	clrsetbits_le32(&ccm->ccgr0, CCM_REG_CTRL_MASK,
-			CCM_CCGR0_UART1_CTRL_MASK | CCM_CCGR0_UART2_CTRL_MASK);
+			CCM_CCGR0_UART1_CTRL_MASK | CCM_CCGR0_UART2_CTRL_MASK |
+			CCM_CCGR0_DSPI0_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr1, CCM_REG_CTRL_MASK,
 			CCM_CCGR1_PIT_CTRL_MASK | CCM_CCGR1_WDOGA5_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr2, CCM_REG_CTRL_MASK,
@@ -427,7 +428,8 @@ static void clock_init(void)
 			CCM_CCGR4_WKUP_CTRL_MASK | CCM_CCGR4_CCM_CTRL_MASK |
 			CCM_CCGR4_GPC_CTRL_MASK | CCM_CCGR4_I2C0_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr6, CCM_REG_CTRL_MASK,
-			CCM_CCGR6_OCOTP_CTRL_MASK | CCM_CCGR6_DDRMC_CTRL_MASK);
+			CCM_CCGR6_OCOTP_CTRL_MASK | CCM_CCGR6_DDRMC_CTRL_MASK |
+			CCM_CCGR6_SNVS_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr7, CCM_REG_CTRL_MASK,
 			CCM_CCGR7_SDHC1_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr9, CCM_REG_CTRL_MASK,
