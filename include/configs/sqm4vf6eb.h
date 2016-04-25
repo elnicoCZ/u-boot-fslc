@@ -232,7 +232,7 @@
 #define CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_M4       "bootcmd_mmc_debug_m4=run bootargs_base bootargs_mmc bootargs_debug_m4 bootcmd_mmc"
 #define CONFIG_EXTRA_BOOTCMD_MMC_RELEASE        "bootcmd_mmc_release=run bootargs_base bootargs_mmc bootargs_release bootcmd_mmc"
 
-#define CONFIG_EXTRA_BOOTCMD_NAND               "bootcmd_nand=nand read ${loadaddr} mtd_kernel ${kernelsize}\;bootm ${loadaddr}"
+#define CONFIG_EXTRA_BOOTCMD_NAND               "bootcmd_nand=nboot mtd_kernel\;bootm"
 #define CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_A5      "bootcmd_nand_debug_a5=run bootargs_base bootargs_nand bootargs_debug_a5 bootcmd_nand"
 #define CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_M4      "bootcmd_nand_debug_m4=run bootargs_base bootargs_nand bootargs_debug_m4 bootcmd_nand"
 #define CONFIG_EXTRA_BOOTCMD_NAND_RELEASE       "bootcmd_nand_release=run bootargs_base bootargs_nand bootargs_release bootcmd_nand"
