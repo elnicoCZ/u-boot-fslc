@@ -9,6 +9,7 @@ if [ $# -lt 1 ] || [ $# -gt 2 ]; then
 	exit 1
 fi
 BOARD=$1
+VERSION=v2016.01
 PADFILE=pad.tmp
 
 [ -f $PADFILE ] && rm $PADFILE
@@ -16,11 +17,11 @@ PADFILE=pad.tmp
 if [ $# -eq 2 ]; then
 	VARIANT=$2
 	CONFIG=${BOARD}_${VARIANT}_config
-	OUTPUT=u-boot-${VARIANT}.${BOARD}
+	OUTPUT=u-boot-${VARIANT}_${VERSION}.${BOARD}
 else
 	VARIANT=""
 	CONFIG=${BOARD}_config
-	OUTPUT=u-boot.${BOARD}
+	OUTPUT=u-boot_${VERSION}.${BOARD}
 fi
 
 case $VARIANT in
