@@ -227,12 +227,12 @@
 /* Environment configuration */
 #ifndef CONFIG_ELNICO_SUPPRESS_ENVIRONMENT
 
-#define CONFIG_EXTRA_BOOTCMD_MMC                "bootcmd_mmc=mmc rescan\;fatload mmc 0:1 ${loadaddr} ${kernel}\;bootm ${loadaddr}"
+#define CONFIG_EXTRA_BOOTCMD_MMC                "bootcmd_mmc=mmc rescan;fatload mmc 0:1 ${loadaddr} ${kernel};bootm ${loadaddr}"
 #define CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_A5       "bootcmd_mmc_debug_a5=run bootargs_base bootargs_mmc bootargs_debug_a5 bootcmd_mmc"
 #define CONFIG_EXTRA_BOOTCMD_MMC_DEBUG_M4       "bootcmd_mmc_debug_m4=run bootargs_base bootargs_mmc bootargs_debug_m4 bootcmd_mmc"
 #define CONFIG_EXTRA_BOOTCMD_MMC_RELEASE        "bootcmd_mmc_release=run bootargs_base bootargs_mmc bootargs_release bootcmd_mmc"
 
-#define CONFIG_EXTRA_BOOTCMD_NAND               "bootcmd_nand=nboot mtd_kernel\;bootm"
+#define CONFIG_EXTRA_BOOTCMD_NAND               "bootcmd_nand=nboot mtd_kernel;bootm"
 #define CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_A5      "bootcmd_nand_debug_a5=run bootargs_base bootargs_nand bootargs_debug_a5 bootcmd_nand"
 #define CONFIG_EXTRA_BOOTCMD_NAND_DEBUG_M4      "bootcmd_nand_debug_m4=run bootargs_base bootargs_nand bootargs_debug_m4 bootcmd_nand"
 #define CONFIG_EXTRA_BOOTCMD_NAND_RELEASE       "bootcmd_nand_release=run bootargs_base bootargs_nand bootargs_release bootcmd_nand"
@@ -250,7 +250,7 @@
 #define CONFIG_EXTRA_ETHADDR                    "ethaddr=00:e0:0c:bc:e5:60"
 #define CONFIG_EXTRA_IPADDR                     "ipaddr=192.168.10.222"
 
-#define CONFIG_EXTRA_ENV_DFU_ALT_INFO           "dfu_alt_info=kernel part 0 1\;rootfs part 0 2\;uImage fat 0 1"
+#define CONFIG_EXTRA_ENV_DFU_ALT_INFO           "dfu_alt_info=kernel part 0 1;rootfs part 0 2;uImage fat 0 1"
 #define CONFIG_EXTRA_ENV_DFU_BUFSIZ             "dfu_bufsiz=524288"
 
 #define CONFIG_EXTRA_ENV_SETTINGS_GENERAL                                       \

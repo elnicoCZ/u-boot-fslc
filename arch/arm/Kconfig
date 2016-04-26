@@ -712,6 +712,7 @@ config ARCH_ROCKCHIP
 config TARGET_SQM4VF6EB
         bool "Support sqm4vf6eb"
         select CPU_V7
+        select SOM_SQM4VF6
 
 endchoice
 

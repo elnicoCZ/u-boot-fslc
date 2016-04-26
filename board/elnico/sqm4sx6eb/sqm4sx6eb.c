@@ -27,7 +27,7 @@
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
-#include "../common/pfuze.h"
+#include "../common_fsl/pfuze.h"
 #include <usb.h>
 #include <usb/ehci-fsl.h>
 
