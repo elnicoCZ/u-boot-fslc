@@ -37,7 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 
 static const iomux_v3_cfg_t usb_pads[] = {
-	VF610_PAD_PTD24__GPIO_70,	// USB0_EN
 	VF610_PAD_PTA30__GPIO_20,	// USB1_EN
 };
 
@@ -219,7 +218,6 @@ int board_init(void)
 	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
 
 #ifdef CONFIG_USB_EHCI_VF
-	gpio_request(USB0_ENABLE_GPIO, "usb0-en-gpio");
 	gpio_request(USB1_ENABLE_GPIO, "usb1-en-gpio");
 #endif
 
@@ -254,9 +252,6 @@ int board_ehci_hcd_init(int port)
 	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
 
 	switch (port) {
-	case 0:
-		gpio_direction_output(USB0_ENABLE_GPIO, 1);
-		break;
 	case 1:
 		gpio_direction_output(USB1_ENABLE_GPIO, 1);
 		break;
