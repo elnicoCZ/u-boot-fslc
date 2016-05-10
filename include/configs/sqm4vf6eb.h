@@ -76,8 +76,10 @@
 					"128k(mtd_bcb)ro,"		\
 					"1408k(mtd_uboot)ro,"		\
 					"512k(mtd_uboot_env),"		\
-					"4m(mtd_kernel),"		\
+					"5m(mtd_m4),"			\
+					"5m(mtd_kernel),"		\
 					"512k(mtd_fdt),"		\
+					"5m(mtd_epd),"			\
 					"-(mtd_rootfs)"
 #else /* !CONFIG_CMD_NAND */
 #define MTDIDS_DEFAULT			""
