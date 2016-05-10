@@ -168,6 +168,7 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_DSE_25ohm	(6 << 6)
 #define PAD_CTL_DSE_20ohm	(7 << 6)
 
+#define PAD_CTL_PUS_100K_DOWN	(0 << 4 | PAD_CTL_PUE)
 #define PAD_CTL_PUS_47K_UP	(1 << 4 | PAD_CTL_PUE)
 #define PAD_CTL_PUS_100K_UP	(2 << 4 | PAD_CTL_PUE)
 #define PAD_CTL_PUS_22K_UP	(3 << 4 | PAD_CTL_PUE)
