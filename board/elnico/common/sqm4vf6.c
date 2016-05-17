@@ -282,14 +282,6 @@ void setup_iomux_enet(void)
 void setup_iomux_nfc(void)
 {
 	static const iomux_v3_cfg_t nfc_pads[] = {
-		VF610_PAD_PTD31__NF_IO15,
-		VF610_PAD_PTD30__NF_IO14,
-		VF610_PAD_PTD29__NF_IO13,
-		VF610_PAD_PTD28__NF_IO12,
-		VF610_PAD_PTD27__NF_IO11,
-		VF610_PAD_PTD26__NF_IO10,
-		VF610_PAD_PTD25__NF_IO9,
-		VF610_PAD_PTD24__NF_IO8,
 		VF610_PAD_PTD23__NF_IO7,
 		VF610_PAD_PTD22__NF_IO6,
 		VF610_PAD_PTD21__NF_IO5,
