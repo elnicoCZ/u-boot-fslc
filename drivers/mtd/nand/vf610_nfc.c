@@ -522,7 +522,7 @@ static int vf610_nfc_dev_ready(struct mtd_info *mtd)
  */
 static void vf610_nfc_select_chip(struct mtd_info *mtd, int chip)
 {
-#ifdef CONFIG_VF610
+#if (defined CONFIG_VF610) && (!defined CONFIG_VF610_NFC_SKIP_CHIPSELECT)
 	u32 tmp = vf610_nfc_read(mtd, NFC_ROW_ADDR);
 	tmp &= ~(ROW_ADDR_CHIP_SEL_RB_MASK | ROW_ADDR_CHIP_SEL_MASK);
 
