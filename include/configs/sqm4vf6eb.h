@@ -72,8 +72,8 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
-#define MTDIDS_DEFAULT			"nand0=fsl_nfc"
-#define MTDPARTS_DEFAULT		"mtdparts=fsl_nfc:"		\
+#define MTDIDS_DEFAULT			"nand0=NAND"
+#define MTDPARTS_DEFAULT		"mtdparts=NAND:"		\
 					"128k(mtd_bcb)ro,"		\
 					"1408k(mtd_uboot)ro,"		\
 					"512k(mtd_uboot_env),"		\
