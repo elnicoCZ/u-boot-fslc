@@ -60,7 +60,7 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
-#define CONFIG_VF610_NFC_SKIP_CHIPSELECT	/* required to make NAND working in Linux! */
+#define CONFIG_VF610_NFC_SKIP_CHIPSELECT	/* required to make NAND working in Linux 3.0! */
 
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
@@ -68,6 +68,7 @@
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_NAND_TRIMFFS
 
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
@@ -77,10 +78,11 @@
 					"128k(mtd_bcb)ro,"		\
 					"1408k(mtd_uboot)ro,"		\
 					"512k(mtd_uboot_env),"		\
-					"5m(mtd_m4),"			\
+					"512k(mtd_m4),"			\
 					"5m(mtd_kernel),"		\
 					"512k(mtd_fdt),"		\
-					"5m(mtd_epd),"			\
+					"4608k(mtd_data_m4),"		\
+					"5m(mtd_data_a5),"		\
 					"-(mtd_rootfs)"
 #else /* !CONFIG_CMD_NAND */
 #define MTDIDS_DEFAULT			""
