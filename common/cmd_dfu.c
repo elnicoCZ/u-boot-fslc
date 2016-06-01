@@ -88,8 +88,10 @@ exit:
 done:
 	dfu_free_entities();
 
+#ifndef CONFIG_DFU_DISABLE_RESET
 	if (dfu_reset)
 		run_command("reset", 0);
+#endif // !CONFIG_DFU_DISABLE_RESET //
 
 	g_dnl_clear_detach();
 
