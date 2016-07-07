@@ -155,9 +155,9 @@ static iomux_v3_cfg_t const phy_control_pads[] = {
 	MX6_PAD_ENET1_RX_CLK__ENET1_REF_CLK_25M | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
 
 	// KSZ8031 PHY 1 Reset
-	MX6_PAD_ENET1_COL__GPIO2_IO_0 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_ENET1_COL__GPIO2_IO_0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	// KSZ8031 PHY 2 Reset
-	MX6_PAD_ENET1_CRS__GPIO2_IO_1 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_ENET1_CRS__GPIO2_IO_1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
 };
 
 #define ENET1_PHY_RESET_GPIO			IMX_GPIO_NR(2, 0)
@@ -179,6 +179,7 @@ static int setup_fec(int fec_id)
 		// Use 125M anatop loopback REF_CLK1 for ENET2, clear gpr1[14], gpr1[18]
 		clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC2_MASK, 0);
 	}
+
 	// Initialize common PHY pads
 	imx_iomux_v3_setup_multiple_pads(phy_control_pads,
 					 ARRAY_SIZE(phy_control_pads));
