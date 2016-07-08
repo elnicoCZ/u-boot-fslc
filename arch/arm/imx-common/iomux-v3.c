@@ -120,10 +120,13 @@ void imx_iomux_gpio_set_direction(unsigned int gpio,
 	 */
 	reg = readl(base + (gpio << 2));
 
-	if (direction)
-		reg |= 0x2;
-	else
-		reg &= ~0x2;
+	if (direction) {
+		reg |=  PAD_CTL_OBE_ENABLE;
+		reg &= ~PAD_CTL_IBE_ENABLE;
+	} else {
+		reg &= ~PAD_CTL_OBE_ENABLE;
+		reg |=  PAD_CTL_IBE_ENABLE;
+	}
 
 	writel(reg, base + (gpio << 2));
 }
