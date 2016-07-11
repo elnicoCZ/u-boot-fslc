@@ -220,6 +220,7 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+#ifndef CONFIG_BOARD_LATE_INIT_OVERWRITE
 int board_late_init(void)
 {
 	struct src *src = (struct src *)SRC_BASE_ADDR;
@@ -232,6 +233,7 @@ int board_late_init(void)
 
 	return 0;
 }
+#endif /* !CONFIG_BOARD_LATE_INIT_OVERWRITE */
 #endif /* CONFIG_BOARD_LATE_INIT */
 
 int checkboard(void)
